@@ -1,3 +1,11 @@
+#define DEBUG_ENABLE 1
+#ifdef DEBUG_ENABLE
+#define DEBUG_LN(x) Serial.println(x)
+#define DEBUG(x) Serial.print(x)
+#else
+#define DEBUG_LN(x)
+#define DEBUG(x)
+#endif
 /*** Клавиатура ***/
 #define I2C_KEYPAD_ADDR 0x20
 #define KEYPAD_ROWS 4
@@ -35,6 +43,8 @@ unsigned long releEndTime;  //Метка времени сработки рел�
 
 /*** BUZZER ***/
 #define BUZZER_PIN 12
+//bool buzz = true;   //разрешение проигрование сигнала
+unsigned long timeBuzz;
 
 /*** LED ***/
 #define PIN 13       // пин DI
@@ -43,10 +53,11 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800)
 unsigned long timeLastLed = millis();  //Метка времени перезалива цвета
 unsigned long blinkLedColor = millis();  //Метка времени мигания
 //                   синий     зелен.    желтый    красн.    черный
-long colorLed[5] = {0x0000ff, 0x00ff00, 0xffff00, 0xff0000, 0x000000};
-uint8_t ledNumber = 0;
-uint8_t colorNow = 0;
-bool blinkLed = true;
+long colorLed[5] = {0x0000ff, 0x00ff00, 0xffbb00, 0xff0000, 0x000000};  //Цвета используемые.
+uint8_t ledNumber = 0;  //С какого LED стартовать
+uint8_t colorNow = 0;   //Начальный цвет (синий)
+bool blinkLed = true;   //Смена цвета
+uint8_t yellow = 0;     //Мигание 3 раза желтым
 
 /*** Timer ***/
 unsigned long setupTimeLastMillis;	//Метка времени

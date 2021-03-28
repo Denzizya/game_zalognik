@@ -5,10 +5,10 @@
 
 void setup()
 {
+#ifdef DEBUG_ENABLE
   Serial.begin(9600);
-
-  Serial.println("Start");
-
+#endif
+  DEBUG_LN(F("Start"));
   //Акселерометр
   Wire.begin();
   mpu.initialize();
@@ -35,17 +35,18 @@ void setup()
 
   //Buzzer
   pinMode(BUZZER_PIN, OUTPUT);
+  delay(1000);
 
   //LED
-
   strip.begin();
-  strip.setBrightness(50);    // яркость, от 0 до 255
-  strip.show();               // отправить на ленту
+  strip.setBrightness(250);    // яркость, от 0 до 255
+  strip.show();
 
-  delay(3000);
+  delay(2000);
 
   if (EEPROM.read(0) != 255 && EEPROM.read(0) > 0)
   {
+    DEBUG_LN(F("Memory start"));
     int cellEeprom = 0;
     for (uint8_t i = 0; i < adress; ++i)
     {
@@ -57,10 +58,12 @@ void setup()
       {
         setupGame[i] = EEPROM.read(cellEeprom);
       }
+      DEBUG_LN(setupGame[i]);
       ++cellEeprom;
       delay(1);
     }
-
+    
+    DEBUG_LN(F("Memory end"));
     globalState = 10;
     ShowSave();    //Меню сохраненные настройки
   }
@@ -92,5 +95,6 @@ void loop()
     case 15: ReleGameOver(); break;           //Реле Game Over
   }
   led();
+  buzzer();
   delay(1);
 }

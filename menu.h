@@ -3,6 +3,8 @@ void showHello() {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Hello game!");
+  lcd.setCursor(0, 1);
+  lcd.print("Demo");
 }
 
 //Установка времени игры
@@ -155,16 +157,8 @@ void ShowTimerGame()
   lcd.setCursor(cursorZeroStr, 0);
   lcd.print(ConstructTimeString(setupGame[0]));
   cursorOneStr = 7;
-  if (setupGame[13] == 1)
-  {
-    lcd.setCursor(0, 1);
-    lcd.print(F("****************"));
-  }
-  else
-  {
-    lcd.setCursor(0, 1);
-    lcd.print(F("Pass:  00000000 "));
-  }
+  lcd.setCursor(0, 1);
+  lcd.print(F("Pass:  00000000 "));
   setupTimeLastMillis = millis();
 }
 
@@ -172,6 +166,7 @@ void ShowTimerGame()
 void GameOver()
 {
   colorNow = 3;
+  ledNumber = 0;
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(F("Time -> 00:00:00"));
@@ -189,16 +184,20 @@ void GameWin()
   lcd.print(F("Bomb Deactiva..."));
   globalState += 2;
   colorNow = 1;
+  blinkLed = true;
+  ledNumber = 0;
 }
 
 //Реле Game Over
 void ReleGameOver()
 {
-  if ((millis - releEndTime) > 30000)
+  if ((millis() - releEndTime) > 30000)
   {
     digitalWrite(RELAY_GAME_OVER, LOW);
     globalState++;
-    colorNow = 1;
+    colorNow = 3;
+    blinkLed = true;
+    ledNumber = 0;
   }
 }
 
@@ -213,7 +212,8 @@ void SetupBombTime()
   if (key == NO_KEY)
     return;
 
-  buzzer();
+  //buzzer();
+  timeBuzz = millis();
 
   if ((key != '*') && (key != '#'))
   {
@@ -261,7 +261,8 @@ void SetupPassword()
   if (key == NO_KEY)
     return;
 
-  buzzer();
+  //buzzer();
+  timeBuzz = millis();
 
   if ((key != '*') && (key != '#'))
   {
@@ -310,7 +311,8 @@ void SetupAttempts()
   if (key == NO_KEY)
     return;
 
-  buzzer();
+  //buzzer();
+  timeBuzz = millis();
 
   if ((key != '*') && (key != '#'))
   {
@@ -360,7 +362,8 @@ void SetupIncorrectToogle()
   if (key == NO_KEY)
     return;
 
-  buzzer();
+  //buzzer();
+  timeBuzz = millis();
 
   if ((key != '*') && (key != '#'))
   {
@@ -397,7 +400,8 @@ void SetupStopTime()
   if (key == NO_KEY)
     return;
 
-  buzzer();
+  //buzzer();
+  timeBuzz = millis();
 
   if ((key != '*') && (key != '#'))
   {
@@ -443,7 +447,8 @@ void SetupSlomoTime()
   if (key == NO_KEY)
     return;
 
-  buzzer();
+  //buzzer();
+  timeBuzz = millis();
 
   if ((key != '*') && (key != '#'))
   {
@@ -479,7 +484,8 @@ void SetupTimeEfect()
   if (key == NO_KEY)
     return;
 
-  buzzer();
+  //buzzer();
+  timeBuzz = millis();
 
   if ((key != '*') && (key != '#'))
   {
@@ -515,7 +521,8 @@ void SetupSensitivity()
   if (key == NO_KEY)
     return;
 
-  buzzer();
+  //buzzer();
+  timeBuzz = millis();
 
   if ((key != '*') && (key != '#'))
   {
@@ -566,7 +573,8 @@ void SetupSensitivityTime()
   if (key == NO_KEY)
     return;
 
-  buzzer();
+  //buzzer();
+  timeBuzz = millis();
 
   if ((key != '*') && (key != '#'))
   {
@@ -612,7 +620,8 @@ void SetupSensitivityEfect()
   if (key == NO_KEY)
     return;
 
-  buzzer();
+  //buzzer();
+  timeBuzz = millis();
 
   if ((key != '*') && (key != '#'))
   {
@@ -634,6 +643,23 @@ void SetupSensitivityEfect()
   }
   if (key == '#')
   {
+    DEBUG_LN(F("Save parsm"));
+    int cellEeprom = 0;
+    for (uint8_t i = 0; i < adress; ++i)
+    {
+      if (i == 0 || i == 1 || i == (adress - 1))
+      {
+        EEPROMWritelong(cellEeprom, setupGame[i]);
+        cellEeprom += 3;
+      }
+      else
+      {
+        EEPROM.write(cellEeprom, setupGame[i]);
+      }
+      DEBUG_LN(setupGame[i]);
+      ++cellEeprom;
+      delay(1);
+    }
     globalState += 2;
     wire_random();
     ShowAnyPress();
@@ -647,7 +673,8 @@ void SetupSave()
   if (key == NO_KEY)
     return;
 
-  buzzer();
+  //buzzer();
+  timeBuzz = millis();
 
   if (key == '#')
   {
@@ -671,27 +698,10 @@ void SetupAnyPress()
   if (key == NO_KEY)
     return;
 
-  buzzer();
-
-  int cellEeprom = 0;
-  for (uint8_t i = 0; i < adress; ++i)
-  {
-    if (i == 0 || i == 1 || i == (adress - 1))
-    {
-      EEPROMWritelong(cellEeprom, setupGame[i]);
-      cellEeprom += 3;
-    }
-    else
-    {
-      EEPROM.write(cellEeprom, setupGame[i]);
-    }
-    Serial.println(setupGame[i]);
-    ++cellEeprom;
-    delay(1);
-  }
-
+  //buzzer();
+  timeBuzz = millis();
   colorNow = 4;
+  ledNumber = 0;
   ++globalState;
-  setupTimeLastMillis = millis();
   ShowTimerGame();
 }

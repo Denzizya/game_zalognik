@@ -1,35 +1,40 @@
 //LED
 void led()
 {
-  if (blinkLedColor)
+  if ((millis() - blinkLedColor) > 1000)
   {
-    if (blinkLed) {
+    if (blinkLed)
+    {
       blinkLed = false;
+      if (colorNow == 2) {
+        if (yellow > 2)
+        {
+          colorNow = 4;
+          yellow = 0;
+        }
+        yellow++;
+      }
     }
     else
     {
       blinkLed = true;
     }
+    blinkLedColor = millis();
   }
-  if ((millis() - timeLastLed) > 100)
+
+  if (ledNumber > NUM_LEDS)ledNumber = 0;
+
+  if (blinkLed)
   {
-    if (blinkLed)
-    {
-      strip.setPixelColor(ledNumber, colorLed[4]);
-    }
-    else
-    {
-      strip.setPixelColor(ledNumber, colorLed[colorNow]);
-    }
-    strip.show();
-    ledNumber++;
-    if (ledNumber == NUM_LEDS)
-    {
-      blinkLedColor = millis();
-      ledNumber = 0;
-    }
-    timeLastLed = millis();
+    strip.setPixelColor(ledNumber, colorLed[4]);
   }
+  else
+  {
+    strip.setPixelColor(ledNumber, colorLed[colorNow]);
+  }
+
+  strip.show();
+  ledNumber++;
 }
 
 //Рандомная установка провода.
@@ -153,8 +158,8 @@ void WireRead()
     }
     setupMiddleTimeMillis = millis();
   }
-  
-  for (uint8_t i = 0; i < WIRE_PINS_COUNT; ++i) 
+
+  for (uint8_t i = 0; i < WIRE_PINS_COUNT; ++i)
   {
     auto &w = wires[i];
     if (w.Value() && !w.Processed())
@@ -162,18 +167,19 @@ void WireRead()
       if (setupGame[10] == i)  //Номер провода который остановит игру с победой.
       {
         globalState += 2;
-        Serial.println("wire");
       }
       else if (setupGame[11] == i) //Номер провода который остановит отсчет на определеное время.
       {
         long stopTime = (setupGame[4] * 60) * 1000;
         speedTime = stopTime;
         colorNow = 2;
+        ledNumber = 0;
       }
       else if (setupGame[12] == i) //Номер провода замедляющий отсчет
       {
         speedTime *= setupGame[5];
         colorNow = 2;
+        ledNumber = 0;
       }
       else if (setupGame[13] == i) //Номер провода останавливающий игру
       {
@@ -196,7 +202,7 @@ void WireRead()
 }
 
 //Чтение пароля
-bool ReadPassword(bool writePass = true)
+bool ReadPassword()
 {
   static uint8_t stringLength = 0;
   static long pass = 0;
@@ -204,6 +210,9 @@ bool ReadPassword(bool writePass = true)
   char key = keypad.getKey();
   if (key == NO_KEY)
     return;
+
+  DEBUG(F("Key: "));
+  DEBUG_LN(key);
 
   if ((key != '*') && (key != '#'))
   {
@@ -225,7 +234,7 @@ bool ReadPassword(bool writePass = true)
       ++stringLength;
     }
   }
-  if (key == '*' || !writePass)
+  if (key == '*')
   {
     pass = 0;
     stringLength = 0;
@@ -259,11 +268,12 @@ bool ReadPassword(bool writePass = true)
       stringLength = 0;
       lcd.setCursor(0, 1);
       lcd.print(F("Pass:  00000000 "));
+      colorNow = 2;
+      ledNumber = 0;
     }
     else
     {
       globalState += 2; //Завершили игру Победа
-      Serial.println("pass");
     }
   }
 }
@@ -287,10 +297,8 @@ void CheckAccel()
     {
       speedTime = 1000;
       speedAccel = false;
-      colorNow = 4;
-    } else {
-      colorNow = 2;
     }
+    colorNow = 2;
   }
 
   int16_t x, y, z;
@@ -311,14 +319,20 @@ void CheckAccel()
 }
 
 //===============================================================================
-
 void buzzer()
 {
-  tone(BUZZER_PIN, 1800);
-  delay(50);
-  tone(BUZZER_PIN, 150);
-  delay(50);
-  noTone(BUZZER_PIN);
+  if ((millis() - timeBuzz) < 50)
+  {
+    tone(BUZZER_PIN, 1800);
+  }
+  if ((millis() - timeBuzz) > 50 && (millis() - timeBuzz) < 100)
+  {
+    tone(BUZZER_PIN, 150);
+  }
+  if ((millis() - timeBuzz) > 100 && (millis() - timeBuzz) < 110)
+  {
+    noTone(BUZZER_PIN);
+  }
 }
 
 //===============================================================================
@@ -336,10 +350,12 @@ void ViewZeroString()
     if (setupGame[12] == 20)
     {
       speedTime = 1000;
-      colorNow = 4;
     }
 
-    buzzer();
+    //buzzer();
+    timeBuzz = millis();
+    DEBUG(F("Time: "));
+    DEBUG_LN(ConstructTimeString(setupGame[0]));
   }
 }
 
@@ -348,7 +364,7 @@ void ViewZeroString()
 void timerGame()
 {
   ViewZeroString(); //Показываем время таймера
-  //WireRead();       //Считываем нажатие тумблеров
+  WireRead();       //Считываем нажатие тумблеров
   CheckAccel();     //Акселерометр
   ReadPassword();   //Ввод пароля
 
