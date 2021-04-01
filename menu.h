@@ -172,7 +172,7 @@ void GameOver()
   lcd.print(F("Time -> 00:00:00"));
   lcd.setCursor(0, 1);
   lcd.print(F("   Game Over!   "));
-  digitalWrite(RELAY_GAME_OVER, HIGH);
+  digitalWrite(RELAY_GAME_OVER, OFF);
   releEndTime = millis();
   globalState += 2;
 }
@@ -193,7 +193,7 @@ void ReleGameOver()
 {
   if ((millis() - releEndTime) > 30000)
   {
-    digitalWrite(RELAY_GAME_OVER, LOW);
+    digitalWrite(RELAY_GAME_OVER, ON);
     globalState++;
     colorNow = 3;
     blinkLed = true;

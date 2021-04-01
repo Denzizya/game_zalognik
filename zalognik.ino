@@ -31,7 +31,7 @@ void setup()
 
   //Реле
   pinMode(RELAY_GAME_OVER, OUTPUT);
-  digitalWrite(RELAY_GAME_OVER, LOW);
+  digitalWrite(RELAY_GAME_OVER, ON);
 
   //Buzzer
   pinMode(BUZZER_PIN, OUTPUT);

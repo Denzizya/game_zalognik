@@ -36,8 +36,8 @@ long timeAccel;
 bool speedAccel = false;
 
 /*** RELE ***/
-#define ON  LOW
-#define OFF HIGH
+#define ON HIGH
+#define OFF LOW
 #define RELAY_GAME_OVER 11
 unsigned long releEndTime;  //Метка времени сработки реле
 
@@ -53,7 +53,7 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800)
 unsigned long timeLastLed = millis();  //Метка времени перезалива цвета
 unsigned long blinkLedColor = millis();  //Метка времени мигания
 //                   синий     зелен.    желтый    красн.    черный
-long colorLed[5] = {0x0000ff, 0x00ff00, 0xffbb00, 0xff0000, 0x000000};  //Цвета используемые.
+long colorLed[5] = {0x0000ff, 0x00ff00, 0xff8400, 0xff0000, 0x000000};  //Цвета используемые.
 uint8_t ledNumber = 0;  //С какого LED стартовать
 uint8_t colorNow = 0;   //Начальный цвет (синий)
 bool blinkLed = true;   //Смена цвета
