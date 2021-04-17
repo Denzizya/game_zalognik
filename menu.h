@@ -43,7 +43,7 @@ void ShowAttempts()
   lcd.setCursor(cursorOneStr, 1);
 }
 
-//Если нажимаем 65-значит время убавится на  65 процентов от оставшегося
+//Убераем время
 void ShowIncorrectToogle()
 {
   lcd.clear();
@@ -212,7 +212,6 @@ void SetupBombTime()
   if (key == NO_KEY)
     return;
 
-  //buzzer();
   timeBuzz = millis();
 
   if ((key != '*') && (key != '#'))
@@ -261,7 +260,6 @@ void SetupPassword()
   if (key == NO_KEY)
     return;
 
-  //buzzer();
   timeBuzz = millis();
 
   if ((key != '*') && (key != '#'))
@@ -311,7 +309,6 @@ void SetupAttempts()
   if (key == NO_KEY)
     return;
 
-  //buzzer();
   timeBuzz = millis();
 
   if ((key != '*') && (key != '#'))
@@ -353,7 +350,7 @@ void SetupAttempts()
   }
 }
 
-//Если нажимаем 65-значит время убавится на  65 процентов от оставшегося
+//Убераем время
 void SetupIncorrectToogle()
 {
   static uint8_t stringLength = 0;
@@ -362,7 +359,6 @@ void SetupIncorrectToogle()
   if (key == NO_KEY)
     return;
 
-  //buzzer();
   timeBuzz = millis();
 
   if ((key != '*') && (key != '#'))
@@ -385,7 +381,7 @@ void SetupIncorrectToogle()
   }
   if (key == '#')
   {
-    setupGame[globalState] *= 60;
+    setupGame[globalState] *= 60000;
     ++globalState;
     ShowStopTime();
   }
@@ -400,7 +396,6 @@ void SetupStopTime()
   if (key == NO_KEY)
     return;
 
-  //buzzer();
   timeBuzz = millis();
 
   if ((key != '*') && (key != '#'))
@@ -447,7 +442,6 @@ void SetupSlomoTime()
   if (key == NO_KEY)
     return;
 
-  //buzzer();
   timeBuzz = millis();
 
   if ((key != '*') && (key != '#'))
@@ -484,7 +478,6 @@ void SetupTimeEfect()
   if (key == NO_KEY)
     return;
 
-  //buzzer();
   timeBuzz = millis();
 
   if ((key != '*') && (key != '#'))
@@ -521,7 +514,6 @@ void SetupSensitivity()
   if (key == NO_KEY)
     return;
 
-  //buzzer();
   timeBuzz = millis();
 
   if ((key != '*') && (key != '#'))
@@ -573,7 +565,6 @@ void SetupSensitivityTime()
   if (key == NO_KEY)
     return;
 
-  //buzzer();
   timeBuzz = millis();
 
   if ((key != '*') && (key != '#'))
@@ -620,7 +611,6 @@ void SetupSensitivityEfect()
   if (key == NO_KEY)
     return;
 
-  //buzzer();
   timeBuzz = millis();
 
   if ((key != '*') && (key != '#'))
@@ -643,6 +633,9 @@ void SetupSensitivityEfect()
   }
   if (key == '#')
   {
+    globalState += 2;
+    wire_random();
+        
     DEBUG_LN(F("Save parsm"));
     int cellEeprom = 0;
     for (uint8_t i = 0; i < adress; ++i)
@@ -660,8 +653,7 @@ void SetupSensitivityEfect()
       ++cellEeprom;
       delay(1);
     }
-    globalState += 2;
-    wire_random();
+    
     ShowAnyPress();
   }
 }
@@ -673,7 +665,6 @@ void SetupSave()
   if (key == NO_KEY)
     return;
 
-  //buzzer();
   timeBuzz = millis();
 
   if (key == '#')
@@ -698,7 +689,6 @@ void SetupAnyPress()
   if (key == NO_KEY)
     return;
 
-  //buzzer();
   timeBuzz = millis();
   colorNow = 4;
   ledNumber = 0;

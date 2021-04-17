@@ -170,8 +170,7 @@ void WireRead()
       }
       else if (setupGame[11] == i) //Номер провода который остановит отсчет на определеное время.
       {
-        long stopTime = (setupGame[4] * 60) * 1000;
-        speedTime = stopTime;
+        speedTime = setupGame[4] * 60000;
         colorNow = 2;
         ledNumber = 0;
       }
@@ -187,7 +186,7 @@ void WireRead()
       }
       else //Отнимаем определенное количество времени
       {
-        if (setupGame[0] >  setupGame[3])
+        if (setupGame[0] > setupGame[3])
         {
           setupGame[0] -= setupGame[3];
         }
@@ -202,7 +201,7 @@ void WireRead()
 }
 
 //Чтение пароля
-bool ReadPassword()
+void ReadPassword()
 {
   static uint8_t stringLength = 0;
   static long pass = 0;
@@ -293,7 +292,7 @@ void CheckAccel()
   //На сколько секунд ускоряем
   if (speedAccel)
   {
-    if ((millis() - timeAccel) > (setupGame[12] * 1000))
+    if ((millis() - timeAccel) > (setupGame[9] * 1000))
     {
       speedTime = 1000;
       speedAccel = false;
@@ -346,13 +345,6 @@ void ViewZeroString()
     lcd.setCursor(cursorZeroStr, 0);
     lcd.print(ConstructTimeString(setupGame[0]));
     setupTimeLastMillis = millis();
-    //Сброс заморозки времени
-    if (setupGame[12] == 20)
-    {
-      speedTime = 1000;
-    }
-
-    //buzzer();
     timeBuzz = millis();
     DEBUG(F("Time: "));
     DEBUG_LN(ConstructTimeString(setupGame[0]));
