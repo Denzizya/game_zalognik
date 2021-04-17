@@ -5,6 +5,7 @@
 
 void setup()
 {
+  randomSeed(analogRead(0));
 #ifdef DEBUG_ENABLE
   Serial.begin(9600);
 #endif

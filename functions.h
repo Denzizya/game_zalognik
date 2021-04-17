@@ -53,6 +53,7 @@ void wire_random() {
         break;
       }
     }
+    DEBUG_LN(setupGame[(10 + i)]);
   }
 }
 
