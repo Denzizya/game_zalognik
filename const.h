@@ -1,4 +1,4 @@
-#define DEBUG_ENABLE 1
+#define DEBUG_ENABLE 0
 #ifdef DEBUG_ENABLE
 #define DEBUG_LN(x) Serial.println(x)
 #define DEBUG(x) Serial.print(x)
@@ -63,6 +63,7 @@ uint8_t yellow = 0;     // Мигание 3 раза желтым
 unsigned long setupTimeLastMillis;	//Метка времени
 unsigned long speedTime = 1000;		  //Скорость таймера
 unsigned long setupMiddleTimeMillis;//Таймер замедления
+bool stopTime = false;              //Остановка таймера
 
 /**************************************************************/
 uint8_t globalState = 0;          //Пункт меню

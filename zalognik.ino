@@ -50,7 +50,7 @@ void setup()
     int cellEeprom = 0;
     for (uint8_t i = 0; i < adress; ++i)
     {
-      if (i == 0 || i == 1 || i == (adress - 1)) {
+      if (i == 0 || i == 1) {
         setupGame[i] = EEPROMReadlong(cellEeprom);
         cellEeprom += 3;
       }

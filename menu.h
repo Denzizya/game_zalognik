@@ -75,7 +75,7 @@ void ShowSlomoTime()
   lcd.print(F("Slomo time:"));
   cursorOneStr = 7;
   lcd.setCursor(cursorOneStr, 1);
-  lcd.print(F("00"));
+  lcd.print(F("00%"));
   lcd.setCursor(cursorOneStr, 1);
 }
 
@@ -381,7 +381,6 @@ void SetupIncorrectToogle()
   }
   if (key == '#')
   {
-    setupGame[globalState] *= 60000;
     ++globalState;
     ShowStopTime();
   }
@@ -634,13 +633,12 @@ void SetupSensitivityEfect()
   if (key == '#')
   {
     globalState += 2;
-    wire_random();
         
     DEBUG_LN(F("Save parsm"));
     int cellEeprom = 0;
     for (uint8_t i = 0; i < adress; ++i)
     {
-      if (i == 0 || i == 1 || i == (adress - 1))
+      if (i == 0 || i == 1)
       {
         EEPROMWritelong(cellEeprom, setupGame[i]);
         cellEeprom += 3;
@@ -653,7 +651,7 @@ void SetupSensitivityEfect()
       ++cellEeprom;
       delay(1);
     }
-    
+  
     ShowAnyPress();
   }
 }
@@ -692,6 +690,7 @@ void SetupAnyPress()
   timeBuzz = millis();
   colorNow = 4;
   ledNumber = 0;
+  wire_random();
   ++globalState;
   ShowTimerGame();
 }

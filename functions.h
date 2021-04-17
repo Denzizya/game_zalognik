@@ -148,11 +148,8 @@ void WireRead()
   //Сброс замедления времени
   if ((millis() - setupMiddleTimeMillis) > 60000)
   {
-    if (setupGame[5] > 0)
-    {
-      --setupGame[6];
-    }
-    else
+     --setupGame[6];
+    if (setupGame[6] <= 0)
     {
       speedTime = 1000;
     }
@@ -170,25 +167,35 @@ void WireRead()
       }
       else if (setupGame[11] == i) //Номер провода который остановит отсчет на определеное время.
       {
+        DEBUG_LN(speedTime);
+        setupTimeLastMillis = millis();
         speedTime = setupGame[4] * 60000;
         colorNow = 2;
         ledNumber = 0;
+        stopTime = true;
+        DEBUG(F("Stop Time: "));
+        DEBUG_LN(speedTime);
       }
       else if (setupGame[12] == i) //Номер провода замедляющий отсчет
       {
-        speedTime *= setupGame[5];
+        DEBUG_LN(speedTime);
+        setupTimeLastMillis = millis();
+        speedTime = (setupGame[5] * 100) + 1000;
         colorNow = 2;
         ledNumber = 0;
+        setupMiddleTimeMillis = millis();
+        DEBUG(F("Slomo Time: "));
+        DEBUG_LN(speedTime);        
       }
-      else if (setupGame[13] == i) //Номер провода останавливающий игру
+      else if (setupGame[13] == i) //Провод взрыва
       {
-        ++globalState;
+        globalState++;       
       }
       else //Отнимаем определенное количество времени
       {
-        if (setupGame[0] > setupGame[3])
+        if (setupGame[0] > (setupGame[3]*60))
         {
-          setupGame[0] -= setupGame[3];
+          setupGame[0] -= (setupGame[3] * 60);
         }
         else
         {
@@ -348,6 +355,7 @@ void ViewZeroString()
     timeBuzz = millis();
     DEBUG(F("Time: "));
     DEBUG_LN(ConstructTimeString(setupGame[0]));
+    if(stopTime){stopTime = false;}
   }
 }
 
