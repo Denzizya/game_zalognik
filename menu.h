@@ -1,10 +1,10 @@
 //Приветствие
 void showHello() {
   lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("Hello game!");
-  lcd.setCursor(0, 1);
-  lcd.print("Demo");
+  lcd.setCursor(2, 0);
+  lcd.print("Judgment Day");
+  lcd.setCursor(2, 1);
+  lcd.print("Training prop");
 }
 
 //Установка времени игры
@@ -43,12 +43,12 @@ void ShowAttempts()
   lcd.setCursor(cursorOneStr, 1);
 }
 
-//Убераем время
+//Если нажимаем 65-значит время убавится на  65 процентов от оставшегося
 void ShowIncorrectToogle()
 {
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print(F("IncorrectToogle:"));
+  lcd.print(F("Incorrect Wire:"));
   cursorOneStr = 0;
   lcd.setCursor(cursorOneStr, 1);
   lcd.print(F("   time   =   00"));
@@ -75,7 +75,7 @@ void ShowSlomoTime()
   lcd.print(F("Slomo time:"));
   cursorOneStr = 7;
   lcd.setCursor(cursorOneStr, 1);
-  lcd.print(F("00%"));
+  lcd.print(F("00"));
   lcd.setCursor(cursorOneStr, 1);
 }
 
@@ -89,6 +89,16 @@ void ShowTimeEfect()
   lcd.setCursor(cursorOneStr, 1);
   lcd.print(F("00"));
   lcd.setCursor(cursorOneStr, 1);
+}
+
+//Выбор режима игры
+ShowSetupGame()
+{
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print(F(" Hostage mode?"));
+  lcd.setCursor(0, 1);
+  lcd.print(F("[*]-NO   [#]-YES"));
 }
 
 //Чуствительность акселеометра.
@@ -147,6 +157,16 @@ void ShowAnyPress()
   lcd.print(F("button please..."));
 }
 
+//Ожидания старта
+void ShowAnyButton()
+{
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print(F("Button wait"));
+  lcd.setCursor(0, 1);
+  lcd.print(F("button please..."));
+}
+
 //Начинаем игру.
 void ShowTimerGame()
 {
@@ -165,14 +185,20 @@ void ShowTimerGame()
 //Конец игры Поражение
 void GameOver()
 {
-  colorNow = 3;
-  ledNumber = 0;
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(F("Time -> 00:00:00"));
   lcd.setCursor(0, 1);
   lcd.print(F("   Game Over!   "));
   digitalWrite(RELAY_GAME_OVER, OFF);
+
+  delay(200);
+  while (audioConnected  && (digitalRead(PLAY) && HIGH))
+  {
+    delay(20);
+  }
+  delay(2000);
+
   releEndTime = millis();
   globalState += 2;
 }
@@ -183,9 +209,6 @@ void GameWin()
   lcd.setCursor(0, 1);
   lcd.print(F("Bomb Deactiva..."));
   globalState += 2;
-  colorNow = 1;
-  blinkLed = true;
-  ledNumber = 0;
 }
 
 //Реле Game Over
@@ -195,13 +218,32 @@ void ReleGameOver()
   {
     digitalWrite(RELAY_GAME_OVER, ON);
     globalState++;
-    colorNow = 3;
-    blinkLed = true;
-    ledNumber = 0;
   }
 }
 
 //=================================================================================================================
+
+//Сохранение данных
+void SaveParams()
+{
+  DEBUG_LN(F("Save parsm"));
+  int cellEeprom = 0;
+  for (uint8_t i = 0; i < adress; ++i)
+  {
+    if (i == 0 || i == 1 || i == (adress - 1))
+    {
+      EEPROMWritelong(cellEeprom, setupGame[i]);
+      cellEeprom += 3;
+    }
+    else
+    {
+      EEPROM.write(cellEeprom, setupGame[i]);
+    }
+    DEBUG_LN(setupGame[i]);
+    ++cellEeprom;
+    delay(1);
+  }
+}
 
 //Установить таймер
 void SetupBombTime()
@@ -350,7 +392,7 @@ void SetupAttempts()
   }
 }
 
-//Убераем время
+//Если нажимаем 65-значит время убавится на  65 процентов от оставшегося
 void SetupIncorrectToogle()
 {
   static uint8_t stringLength = 0;
@@ -381,6 +423,7 @@ void SetupIncorrectToogle()
   }
   if (key == '#')
   {
+    setupGame[globalState] *= 60;
     ++globalState;
     ShowStopTime();
   }
@@ -499,6 +542,28 @@ void SetupTimeEfect()
   }
   if (key == '#')
   {
+    ++globalState;
+    ShowSetupGame();
+  }
+}
+
+//Режим игры
+SetupGame()
+{
+  char key = keypad.getKey();
+  if (key == NO_KEY)
+    return;
+
+  if (key == '*')
+  {
+    SaveParams();
+    setupGame[globalState] = 0;
+    globalState += 5;
+    ShowAnyPress();
+  }
+  if (key == '#')
+  {
+    setupGame[globalState] = 1;
     ++globalState;
     ShowSensitivity();
   }
@@ -632,26 +697,8 @@ void SetupSensitivityEfect()
   }
   if (key == '#')
   {
+    SaveParams();
     globalState += 2;
-        
-    DEBUG_LN(F("Save parsm"));
-    int cellEeprom = 0;
-    for (uint8_t i = 0; i < adress; ++i)
-    {
-      if (i == 0 || i == 1)
-      {
-        EEPROMWritelong(cellEeprom, setupGame[i]);
-        cellEeprom += 3;
-      }
-      else
-      {
-        EEPROM.write(cellEeprom, setupGame[i]);
-      }
-      DEBUG_LN(setupGame[i]);
-      ++cellEeprom;
-      delay(1);
-    }
-  
     ShowAnyPress();
   }
 }
@@ -665,6 +712,8 @@ void SetupSave()
 
   timeBuzz = millis();
 
+  DEBUG_LN(F("++++++++++++++++++++++++++++++"));
+  DEBUG_LN(key);
   if (key == '#')
   {
     memset(setupGame, 0, sizeof(setupGame));
@@ -672,25 +721,67 @@ void SetupSave()
     showTextBombTime();
     EEPROM.write(0, 255);
   }
+
   if (key == '*')
   {
     ++globalState;
-    ShowAnyPress();
+    if (!setupGame[7])
+    {
+      ShowAnyPress();
+    } else {
+      ShowAnyButton();
+      timeDownButton = millis();
+    }
   }
 }
 
 //Ожидания старта
 void SetupAnyPress()
 {
-  char key = keypad.getKey();
+  if (!setupGame[7])
+  {
+    char key = keypad.getKey();
 
-  if (key == NO_KEY)
-    return;
+    if (key == NO_KEY)
+      return;
+  }
+  if (setupGame[7])
+  {
+    if (wires[(WIRE_PINS_COUNT - 1)].Value()) //Чтение нажатой кнопки
+    {
+      if (start_button == 3)
+      {
+        lcd.setCursor(0, 1);
+        lcd.print(F("       3        "));
+        start_button--;
+      }
+      if (start_button == 2 && ((millis() - timeDownButton) > 1000))
+      {
+        lcd.setCursor(0, 1);
+        lcd.print(F("       2        "));
+        start_button--;
+      }
+      if (start_button == 1 && ((millis() - timeDownButton) > 2000))
+      {
+        lcd.setCursor(0, 1);
+        lcd.print(F("       1        "));
+        start_button--;
+      }
+      if ((millis() - timeDownButton) < 3000)
+      {
+        return;
+      }
+    } else {
+      start_button = 3;
+      timeDownButton = millis();
+      return;
+    }
+  }
 
-  timeBuzz = millis();
-  colorNow = 4;
-  ledNumber = 0;
+
+  PlaySound(TREK2);
   wire_random();
+  timeBuzz = millis();
   ++globalState;
   ShowTimerGame();
 }

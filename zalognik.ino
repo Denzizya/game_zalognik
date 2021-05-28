@@ -1,15 +1,12 @@
 #include "libraries.h"
-#include "const.h"
-#include "functions.h"
-#include "menu.h"
 
 void setup()
 {
   randomSeed(analogRead(0));
-#ifdef DEBUG_ENABLE
   Serial.begin(9600);
-#endif
+  
   DEBUG_LN(F("Start"));
+  
   //Акселерометр
   Wire.begin();
   mpu.initialize();
@@ -29,21 +26,28 @@ void setup()
   }
 
   showHello();  //Запуск меню приветствия.
+  
+  //Плеер
+  delay(1000);
+  
+  audio.begin(Serial);
+  delay(2000);
+  audio.setTimeOut(500);
+  audioConnected = 1;
+  audio.volume(AUDIO_VOLUME);
+  audio.EQ(DFPLAYER_EQ_NORMAL);
+  audio.outputDevice(DFPLAYER_DEVICE_SD);
+  audio.enableDAC();
+  pinMode(PLAY, INPUT_PULLUP);
 
+  PlaySound(TREK1);
+  
   //Реле
   pinMode(RELAY_GAME_OVER, OUTPUT);
   digitalWrite(RELAY_GAME_OVER, ON);
 
   //Buzzer
   pinMode(BUZZER_PIN, OUTPUT);
-  delay(1000);
-
-  //LED
-  strip.begin();
-  strip.setBrightness(250);    // яркость, от 0 до 255
-  strip.show();
-
-  delay(2000);
 
   if (EEPROM.read(0) != 255 && EEPROM.read(0) > 0)
   {
@@ -51,7 +55,7 @@ void setup()
     int cellEeprom = 0;
     for (uint8_t i = 0; i < adress; ++i)
     {
-      if (i == 0 || i == 1) {
+      if (i == 0 || i == 1 || i == (adress - 1)) {
         setupGame[i] = EEPROMReadlong(cellEeprom);
         cellEeprom += 3;
       }
@@ -65,7 +69,7 @@ void setup()
     }
     
     DEBUG_LN(F("Memory end"));
-    globalState = 10;
+    globalState = 11;
     ShowSave();    //Меню сохраненные настройки
   }
   else
@@ -85,17 +89,17 @@ void loop()
     case 4: SetupStopTime(); break;           //Заморозка таймера
     case 5: SetupSlomoTime(); break;          //Во сколько раз медленее будет отсчет.
     case 6: SetupTimeEfect(); break;          //Сколько минут будет действовать этот эффект.
-    case 7: SetupSensitivity(); break;        //Чуствительность акселерометра.
-    case 8: SetupSensitivityTime(); break;    //Во сколько раз должен ускориться отсчет при срабатывании модуля.
-    case 9: SetupSensitivityEfect(); break;   //Отрезок времени для ускорения.
-    case 10: SetupSave(); break;              //Запрос восстановление данных
-    case 11: SetupAnyPress(); break;          //Ожидания старта
-    case 12: timerGame(); break;              //Начало игры
-    case 13: GameOver(); break;               //Конец игры Поражение
-    case 14: GameWin(); break;                //Конец игры Победа
-    case 15: ReleGameOver(); break;           //Реле Game Over
+    case 7: SetupGame(); break;               //Выбор режима игры.
+    case 8: SetupSensitivity(); break;        //Чуствительность акселерометра.
+    case 9: SetupSensitivityTime(); break;    //Во сколько раз должен ускориться отсчет при срабатывании модуля.
+    case 10: SetupSensitivityEfect(); break;  //Отрезок времени для ускорения.
+    case 11: SetupSave(); break;              //Запрос восстановление данных
+    case 12: SetupAnyPress(); break;          //Ожидания старта
+    case 13: timerGame(); break;              //Начало игры
+    case 14: GameOver(); break;               //Конец игры Поражение
+    case 15: GameWin(); break;                //Конец игры Победа
+    case 16: ReleGameOver(); break;           //Реле Game Over
   }
-  led();
   buzzer();
   delay(1);
 }

@@ -4,4 +4,9 @@
 #include <EEPROM.h>
 #include <I2Cdev.h>
 #include <MPU6050.h>
-#include "Adafruit_NeoPixel.h"
+#include <DFRobotDFPlayerMini.h>
+
+#include "const.h"
+#include "play.h"
+#include "functions.h"
+#include "menu.h"
